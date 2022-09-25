@@ -34,6 +34,7 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour where T : MonoBe
         if (_instance != null)
         {
             _isInstantiated = true;
+            Debug.Log($"{this.gameObject.name} instance created.");
         }
     }
 
@@ -44,6 +45,7 @@ public abstract class MonoBehaviourSingleton<T> : MonoBehaviour where T : MonoBe
     {
         _instance = null;
         _isInstantiated = false;
+        Debug.Log($"{this.gameObject.name} instance released.");
     }
 
 } // MonoBehaviourSingleton

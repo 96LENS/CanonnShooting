@@ -18,14 +18,11 @@ title CannonShooting ClassMap
 'Animationファイルの管理・再生制御をどのように行うか
 'BarrelとLowerCarriageのドメインロジックがどのようにTransfromを知っているようにするか
 
+/'=====================================================
+Domain層 (今回はロジックもここにまとめる)
+======================================================='/
 Package Domain{
     Package Cannnon{
-
-        class Cannon{
-            - Barrel _barrel
-            - LowerCarriage _lowerCarriage
-            + void Initialize()
-        }
 
         '大砲の砲身 (垂直回転の制御)
         class Barrel{
@@ -42,9 +39,6 @@ Package Domain{
             + void Initialize()
             + void UpdatePanoramcRotation()
         }
-
-        Cannon *-- Barrel
-        Cannon *-- LowerCarriage
     }
 
     Package Bullet
@@ -57,10 +51,14 @@ Package Domain{
             PARALYSIS
         }
 
-        class BulletManager{
-            - List<Bullet> _bulletList
-            - List<GameObject> _bulletInstance
+        'Q. 残段数の管理
+        class RemaingBullet{
+            - int maxBullet
+            - int nowBullet
+            - void UpdateRemaingBullet()
+            + bool IsMaxBullet()
         }
+        
 
         class BulletCreator{
             - float _interval
@@ -102,16 +100,90 @@ Package Domain{
 
     }
     Enemy --> IDamage
+
+    Package HitPoint{
+
+    }
+
+    Package Score{
+
+    }
+
+    Package TimeLimit{
+
+    }
 }
 
-'ドメインロジックの組み立て
-Package Presentation{
-
-}
-
-'UIなど主にユーザーが見えるところ
+/'=====================================================
+Application層 (Domain層の組み立て) Unityの繋ぎこみも担当
+======================================================='/
 Package Application{
 
+    class CannnonUpdater{
+        
+    }
 }
 
-    @enduml
+/'=====================================================
+Presentation層 UIなど主にユーザーが見えるところ (MonoBehaviour継承クラスはここだけ)
+======================================================='/
+
+Package Presentation{
+
+    'MonoBehaviourのライフサイクルを模したインターフェース
+    'Application層での繋ぎこみはこのインターフェースの実装クラスとして記載する
+    Interface IMonoBehaviourRoutine{
+        void Awake()
+        void OnEnable()
+        void Start()
+        void FixedUpdate()
+        void Update() 
+        void LateUpdate()
+        void OnDisable()
+        void OnDestroy()
+    }
+
+    'IMonoBehaviourの処理をUnity上のメインルーチンとして呼び出すためのクラス
+    class MonoBehaviourUpdateManager{
+        - List<IMonoBehaviourRoutine> _updateList
+        - void Awake()
+        - void OnEnable()
+        - void Start()
+        - void FixedUpdate()
+        - void Update()
+        - void LateUpdate()
+        - void OnDisable()
+        - void OnDestroy()
+    }
+    MonoBehaviourUpdateManager "1"--> "0..*" IMonoBehaviourRoutine : 更新 >
+    MonoBehaviourUpdateManager --|> ComponentBase
+
+    'MonoBehaviourクラス上でシングルトンを保証するクラス
+    abstract MonoBehaviourSingleton<<MonoBehaviour>>{
+        - T _instance
+        - bool _isInitialized
+        # virtual void Awake()
+        # vritual void OnDestroy()
+    }
+
+    'GameObjectに貼り付けるコンポーネントの基礎クラス
+    abstract ComponentBase{
+        + bool IsSerializeFieldNullOrEmpty()     
+    }
+    ComponentBase --|> MonoBehaviourSingleton
+
+    class CannonContainer{
+        + GameObject barrel
+        + GameObject lowerCarriage
+    }
+    CannonContainer --|> ComponentBase
+
+    class CannonPresenter{
+    }
+}
+
+'全体的な参照表現
+CannonPresenter ..|> IMonoBehaviourRoutine : 実装 >
+
+'Q.GameObjectの生成はオブジェクト単位でまとめたほうがいいのではないか？
+@enduml
