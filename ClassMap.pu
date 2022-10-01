@@ -25,18 +25,14 @@ Package Domain{
     Package Cannnon{
 
         '大砲の砲身 (垂直回転の制御)
-        class Barrel{
+        '大砲の礎台(水平方向の回転を制御)
+        class Cannnon{
             - float _tiltRotateSpeed
-            - Transform _trnsBarrel
+            - Transform _trsfBarrel
+            - float _PanoramacRotateSpeed
+            - Transform _trsfLowerCarriage
             + void Initialize()
             + void UpdateTiltRotation()
-        }
-
-        '大砲の礎台(水平方向の回転を制御)
-        class LowerCarriage{
-            - float _PanoramacRotateSpeed
-            - Transform _trnsLowerCarriage
-            + void Initialize()
             + void UpdatePanoramcRotation()
         }
     }

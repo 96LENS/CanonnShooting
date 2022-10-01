@@ -30,16 +30,20 @@ public abstract class ComponentBase : MonoBehaviourSingleton<ComponentBase>
     //=====================================================================================================================
     protected override void Awake()
     {
-        base.Awake();
+
     }
 
     protected override void OnDestroy()
     {
-        base.OnDestroy();
+
     }
 
     //=====================================================================================================================
     // Public関数
     //=====================================================================================================================
+    public void IsSerializedFieldNullOrEmpty()
+    {
+        var fields = GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+    }
 
 } // ComponentBase

@@ -13,7 +13,7 @@ public static class CollectionExtension
     //=====================================================================================================================
 
     /// <summary>
-    /// コレクションがNullかEmptyかを調べます
+    /// コレクションがnullか要素数が「0」かを判定します
     /// </summary>
     /// <param name="self"></param>
     /// <returns></returns>
