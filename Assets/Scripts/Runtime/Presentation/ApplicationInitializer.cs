@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -5,7 +6,7 @@ using UnityEngine.SceneManagement;
 /// <summary>
 /// アプリケーションのエントリーポイント
 /// </summary>
-public class ApplicationInitializer
+public static class ApplicationInitializer
 {
     //=====================================================================================================================
     // 内部クラス・列挙型定義
@@ -26,19 +27,30 @@ public class ApplicationInitializer
     //=====================================================================================================================
     // コンストラクタ
     //=====================================================================================================================
-    public ApplicationInitializer()
-    {
-
-    }
 
     //=====================================================================================================================
     // Private関数
     //=====================================================================================================================
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void _TryApplicationInitialization()
+    {
+        try 
+        {
+            ApplicationInitialize();
+        }
+
+        catch (Exception exception)
+        {
+            Debug.LogErrorFormat($"[ApplicationInitializer] アプケーション初期化処理中にエラーが発生しました。\n 詳細 =>{0}", exception);
+        }
+    }
+
+
     private static void ApplicationInitialize()
     {
         TimeMeasurement.StartTimeMeasurement();
+        
         // フレームレートの設定
         Application.targetFrameRate = 60;
 
@@ -47,9 +59,6 @@ public class ApplicationInitializer
         // その他設定
 
         // メインシーン読み込み
-        SceneManager.LoadSceneAsync("MainScene");
-
-        Debug.Log($"<color=green> Application Initialization finished. [TOTAL]: {TimeMeasurement.GetSubTotalTimeToString(Color.magenta)} ms</color>");
     }
 
     //=====================================================================================================================

@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-
 
 /// <summary>
 /// 時間計測用のクラス
@@ -71,7 +68,7 @@ public static class TimeMeasurement
     /// <returns></returns>
     public static string GetSubTotalTimeToString(Color color)
     {
-        return $"<color={color.ToString()}>{string.Format("{0:0.000}", GetSubTotalTime())}</color>";
+        return $"<color={color.ToString()}>[SUB TOTAL] : {string.Format("{0:0.000}", GetSubTotalTime())}Sec </color>";
     }
 
     /// <summary>
@@ -81,7 +78,7 @@ public static class TimeMeasurement
     /// <returns></returns>
     public static string GetTotalTimeToString(Color color)
     {
-        return $"<color={color.ToString()}>{string.Format("{0:0.000}", GetTotalTime())}</color>";
+        return $"<color={color.ToString()}>[TOTAL] : {string.Format("{0:0.000}", GetTotalTime())} Sec </color>";
     }
 
 } // TimeMeasurement
