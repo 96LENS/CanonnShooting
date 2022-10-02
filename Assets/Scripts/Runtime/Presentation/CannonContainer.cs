@@ -4,9 +4,9 @@ using UnityEngine;
 
 
 /// <summary>
-/// MonoBehaviourのルーチンを管理するクラス
+/// 
 /// </summary>
-public class MonoBehaviourRoutineManager : MonoBehaviourSingleton<MonoBehaviourRoutineManager>
+public class CannonContainer : ContainerBase
 {
     //=====================================================================================================================
     // 内部クラス・列挙型定義
@@ -19,7 +19,10 @@ public class MonoBehaviourRoutineManager : MonoBehaviourSingleton<MonoBehaviourR
     //=====================================================================================================================
     // 変数
     //=====================================================================================================================
-    private List<IMonoBehaviourRoutine> _updateRoutineList;
+    [SerializeField]
+    private GameObject _GoBarrel;
+    [SerializeField]
+    private GameObject _GoLowerCarriage;
 
     //=====================================================================================================================
     // プロパティ
@@ -28,95 +31,53 @@ public class MonoBehaviourRoutineManager : MonoBehaviourSingleton<MonoBehaviourR
     //=====================================================================================================================
     // コンストラクタ
     //=====================================================================================================================
+    public CannonContainer()
+    {
+
+    }
 
     //=====================================================================================================================
     // MonoBehaviour関数
     //=====================================================================================================================
 
-　　private new void Awake()
+　　protected override void Awake()
     {
         base.Awake();
-
-        if (_updateRoutineList.IsNullOrEmpty() == true) return;
-
-        foreach(var routine in _updateRoutineList)
-        {
-            routine.Awake();
-        }
     }
 
 　　private void OnEnable()
     {
-        if (_updateRoutineList.IsNullOrEmpty() == true) return;
-
-        foreach (var routine in _updateRoutineList)
-        {
-            routine.OnEnable();
-        }
 
     }
 
 　　private void Start()
     {
-        if (_updateRoutineList.IsNullOrEmpty() == true) return;
 
-        foreach (var routine in _updateRoutineList)
-        {
-            routine.Start();
-        }
     }
 
     private void FixedUpdate()
     {
-        if (_updateRoutineList.IsNullOrEmpty() == true) return;
 
-        foreach (var routine in _updateRoutineList)
-        {
-            routine.FixedUpdate();
-        }
     }
 
     
     private void Update()
     {
-        if (_updateRoutineList.IsNullOrEmpty() == true) return;
 
-        foreach (var routine in _updateRoutineList)
-        {
-            routine.Update();
-        }
     }
 
     private void LateUpdate()
     {
-        if (_updateRoutineList.IsNullOrEmpty() == true) return;
 
-        foreach (var routine in _updateRoutineList)
-        {
-            routine.FixedUpdate();
-        }
     }
 
     private void OnDisable()
     {
-        if (_updateRoutineList.IsNullOrEmpty() == true) return;
 
-        foreach (var routine in _updateRoutineList)
-        {
-            routine.OnDisable();
-        }
     }
 
-    private new void OnDestroy()
+    protected override  void OnDestroy()
     {
-        if (_updateRoutineList.IsNullOrEmpty() == true) return;
-
-        foreach (var routine in _updateRoutineList)
-        {
-            routine.OnDestroy();
-        }
-
-        _updateRoutineList.Clear();
         base.OnDestroy();
     }
 
@@ -127,10 +88,6 @@ public class MonoBehaviourRoutineManager : MonoBehaviourSingleton<MonoBehaviourR
     //=====================================================================================================================
     // Public関数
     //=====================================================================================================================
-    public void AddRoutneUpdateList(IMonoBehaviourRoutine routine)
-    {
-        _updateRoutineList.Add(routine);
-        Debug.Log($"Add UpdateRoutineList => [{routine.GetType().Name}]");
-    }
 
-} // MonoBehaviourRoutineManager
+
+} // CannonContainer

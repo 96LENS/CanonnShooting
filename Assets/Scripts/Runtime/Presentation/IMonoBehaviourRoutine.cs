@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>
 /// MonoBehaviourのルーチンを実装するためのインターフェース
 /// </summary>
-interface IMonoBehaviourRoutine
+public interface IMonoBehaviourRoutine
 {
     //=====================================================================================================================
     // 提供する関数

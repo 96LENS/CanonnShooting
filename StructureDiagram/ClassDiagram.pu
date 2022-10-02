@@ -26,7 +26,7 @@ Package Domain{
 
         '大砲の砲身 (垂直回転の制御)
         '大砲の礎台(水平方向の回転を制御)
-        class Cannnon{
+        class Cannon{
             - float _tiltRotateSpeed
             - Transform _trsfBarrel
             - float _PanoramacRotateSpeed
@@ -114,7 +114,7 @@ Application層 (Domain層の組み立て) Unityの繋ぎこみも担当
 ======================================================='/
 Package Application{
 
-    'キャノンのロジックモデル組み立て
+    'キャノンのロジックモデル組み立て(ロジック自体はDomain層で記載する)
     class CannonModel{
 
     }
@@ -174,7 +174,8 @@ Package Presentation{
     }
     CannonContainer --|> ContainerBase
 
-    class PresenterBase<<Control>>{
+    'ルーチンの基礎クラス、
+    class MonoBehaviourRoutineBase<<Control>>{
         - Control _control
         + virtual void Awake()
         + virtual void OnEnable()
@@ -187,17 +188,20 @@ Package Presentation{
 
 
     }
-    PresenterBase ..|> IMonoBehaviourRoutine : 実装 > 
+    MonoBehaviourRoutineBase ..|> IMonoBehaviourRoutine : 実装 > 
+    MonoBehaviourRoutineBase --> MonoBehaviourUpdateManager : 生成時に登録 > 
 
+    'キャノンの関係のUIと手続きの紐づけ
     class CannonPresenter{
 
     }
-    CannonPresenter --|> PresenterBase
+    CannonPresenter --|> MonoBehaviourRoutineBase
     CannonPresenter --> CannonContainer
 }
 
-'全体的な参照表現
 CannonPresenter --> CannonModel
+
+CannonModel --> Cannon
 
 'Q.GameObjectの生成はオブジェクト単位でまとめたほうがいいのではないか？
 @enduml

@@ -4,10 +4,11 @@ using UnityEngine;
 
 
 /// <summary>
-/// キャノンの制御を行うクラス
+/// 
 /// </summary>
-public class Cannon
+public class CannonPresenter : MonoBehaviourRoutineBase<CannonPresenter>
 {
+
     //=====================================================================================================================
     // 内部クラス・列挙型定義
     //=====================================================================================================================
@@ -16,13 +17,9 @@ public class Cannon
     // 定数
     //=====================================================================================================================
 
-
+    //=====================================================================================================================
     // 変数
     //=====================================================================================================================
-    private float _tiltRotationSpeed;
-    private float _panoramacRotationSpeed;
-    private Transform _trsfBarrel;
-    private Transform _trsfLowerCarriage;
 
     //=====================================================================================================================
     // プロパティ
@@ -31,36 +28,63 @@ public class Cannon
     //=====================================================================================================================
     // コンストラクタ
     //=====================================================================================================================
-    public Cannon(float tiltRotationSpeed, float panoramacRotationSpeed, Transform trsfBarrel, Transform trsfLowerCarriage)
+    public CannonPresenter(CannonPresenter control) : base(control)
     {
-        _tiltRotationSpeed = tiltRotationSpeed;
-        _panoramacRotationSpeed = panoramacRotationSpeed;
-        _trsfBarrel = trsfBarrel;
-        _trsfLowerCarriage = trsfLowerCarriage;
+        Debug.Log(control);
+    }
+
+    //=====================================================================================================================
+    // MonoBehaviour関数
+    //=====================================================================================================================
+
+    public override void Awake()
+    {
+        Debug.Log("Awake()");
+    }
+
+　　public override void OnEnable()
+    {
+        Debug.Log("OnEnable()");
+    }
+
+    public override void Start()
+    {
+        Debug.Log("Start()");
+    }
+
+    public override void FixedUpdate()
+    {
+
+    }
+
+
+    public override void Update()
+    {
+
+    }
+
+    public override void LateUpdate()
+    {
+
+    }
+
+    public override void OnDisable()
+    {
+
+    }
+
+    public override void OnDestroy()
+    {
+
     }
 
     //=====================================================================================================================
     // Private関数
     //=====================================================================================================================
 
-
     //=====================================================================================================================
     // Public関数
     //=====================================================================================================================
-    /// <summary>
-    /// 砲台の回転情報(垂直回転)を更新します
-    /// </summary>
-    public void UpdateBarrelRotation()
-    {
 
-    }
 
-    /// <summary>
-    /// 礎台の回転情報(水平回転)を更新します
-    /// </summary>
-    public void UpdateLowerCarriageRotation()
-    {
-
-    }
-
-} // Barrel
+} // CannonPresenter
