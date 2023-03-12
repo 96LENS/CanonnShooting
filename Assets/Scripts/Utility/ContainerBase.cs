@@ -1,14 +1,13 @@
 using System;
 using System.Reflection;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Unity.VisualScripting;
+
+using CannonShooting.Utility;
 
 /// <summary>
 /// GameObjectを格納するコンポーネント
 /// </summary>
-public abstract class ContainerBase : MonoBehaviourSingleton<ContainerBase>
+public abstract class ContainerBase : SingletonMonoBehaviour<ContainerBase>
 {
     //=====================================================================================================================
     // 内部クラス・列挙型定義
@@ -31,17 +30,15 @@ public abstract class ContainerBase : MonoBehaviourSingleton<ContainerBase>
     //=====================================================================================================================
     protected override void Awake()
     {
-        base.Awake();
-
         if(IsSerializedFieldNullOrEmpty() == true)
         {
-            Debug.LogErrorFormat("[{0}]メンバーへの参照が切れている場所があります。Containerのメンバーを確認してください", this.name);
+            return;
         }
     }
 
     protected override void OnDestroy()
     {
-        base.OnDestroy();
+        
     }
 
     //=====================================================================================================================
@@ -59,9 +56,9 @@ public abstract class ContainerBase : MonoBehaviourSingleton<ContainerBase>
 
         // Debug.Log($"flags => {flags}, Type => {type}, FieldInfo[] => {fields.Length}");
 
-        if (fields.IsNullOrEmpty() == true)
+        if (fields.IsNullOrEmpty())
         {
-            Debug.LogError($"メンバーがNullまたは要素数が「0」です");
+            Debug.LogError($"<color=red>[ContainerBase]</color> fields is null or empty. Please check <color=orange>{this.name}</color>.");
             return true;
         }
 
@@ -74,13 +71,12 @@ public abstract class ContainerBase : MonoBehaviourSingleton<ContainerBase>
             
             if (attribute != null && value is null)
             {
-                Debug.LogError($"{f.Name}の中身がありません。[{this.name}]コンポーネントを確認してください");
+                Debug.LogError($"<color=red>[ContainerBase]</color> => {f.Name} is null. Please check <color=orange>{this.name}</color>.");
                 return true;
             }
         }
 
         return false;
-
     }
 
 } // ContainerBase
