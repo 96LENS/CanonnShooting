@@ -1,207 +1,204 @@
 @startuml CannonShooting
-title CannonShooting ClassMap
 
-/'
-オブジェクト指向のポイント
-ドメイン(業務の関心事)のデータとロジックを一緒にしてオブジェクト単位でまとめる技法
-手続き型はトップダウン、オブジェクト指向はパーツを作って関係を構築していくボトムアップ
+'プレイヤー
 
-1登場人物の整理 (業務の関心事を洗い出す)
-ヒト(業務活動の当事者)：プレイヤー・敵
-モノ(人が業務を遂行するときの関心の対象)：大砲・大砲の弾・エネミー、制限時間・スコア・HP
-コト(事象)：大砲とエネミーの衝突、大砲の弾とエネミーの衝突
-
-2各々の関心事を説明する
-'/
-
-'大砲のロジックをどのようにMonoBehaviourのメインルーチンに繋げるか (MonoBehaviourが何らかの形で知っている必要がある)
-'Animationファイルの管理・再生制御をどのように行うか
-'BarrelとLowerCarriageのドメインロジックがどのようにTransfromを知っているようにするか
-
-/'=====================================================
-Domain層 (今回はロジックもここにまとめる)
-======================================================='/
-Package Domain{
-    Package Cannnon{
-
-        '大砲の砲身 (垂直回転の制御)
-        '大砲の礎台(水平方向の回転を制御)
-        class Cannon{
-            - float _tiltRotateSpeed
-            - Transform _trsfBarrel
-            - float _PanoramacRotateSpeed
-            - Transform _trsfLowerCarriage
-            + void Initialize()
-            + void UpdateTiltRotation()
-            + void UpdatePanoramcRotation()
-        }
-    }
-
-    Package Bullet{
-        '弾の属性のEnumeration
-        enum BulletType<<short>>{
-            NORMAL
-            MAGNUM
-            POISON
-            PARALYSIS
-        }
-
-        'Q. 残段数の管理
-        class RemaingBullet{
-            - int maxBullet
-            - int nowBullet
-            - void UpdateRemaingBullet()
-            + bool IsMaxBullet()
-        }
-        
-
-        class BulletCreator{
-            - float _interval
-            + bool IsCreateBullet()
-            - void CountInterval()
-            + void CreateBullet()
-        }
-
-        class Bullet <<MonoBehaviour>>{
-            - BulletType _bulletType
-        }
-        Bullet *-- BulletType
-
-    }
-
-    Package Enemy{
-
-        class EnemyBase
-        {
-            - float _moveSpeed
-            - int _hitPoint
-            + void Movement()
-            + void Attack()
-        }
-
-        class Enemy{
-
-        }
-        Enemy --|> EnemyBase
-    }
-
-    Package Damage{
-
-        Interface IDamage{
-            
-        }
-
-        class Damage
-
-    }
-    Enemy --> IDamage
-
-    Package HitPoint{
-
-    }
-
-    Package Score{
-
-    }
-
-    Package TimeLimit{
-
-    }
-}
-
-/'=====================================================
-Application層 (Domain層の組み立て) Unityの繋ぎこみも担当
-======================================================='/
-Package Application{
-
-    'キャノンのロジックモデル組み立て(ロジック自体はDomain層で記載する)
-    class CannonModel{
-
-    }
-}
-
-/'=====================================================
-Presentation層 UIなど主にユーザーが見えるところ (MonoBehaviour継承クラスはここだけ)
-======================================================='/
-
-Package Presentation{
-
-    'MonoBehaviourのライフサイクルを模したインターフェース
-    'Application層での繋ぎこみはこのインターフェースの実装クラスとして記載する
-    Interface IMonoBehaviourRoutine{
-        void Awake()
-        void OnEnable()
-        void Start()
-        void FixedUpdate()
-        void Update() 
-        void LateUpdate()
-        void OnDisable()
-        void OnDestroy()
-    }
-
-    'IMonoBehaviourの処理をUnity上のメインルーチンとして呼び出すためのクラス
-    class MonoBehaviourUpdateManager{
-        - List<IMonoBehaviourRoutine> _updateList
+namespace Process{
+    'ゲームの進行管理
+    class GameProcessManager{
+        - List<> _processList
         - void Awake()
         - void OnEnable()
-        - void Start()
         - void FixedUpdate()
         - void Update()
         - void LateUpdate()
         - void OnDisable()
         - void OnDestroy()
     }
-    MonoBehaviourUpdateManager "1"--> "0..*" IMonoBehaviourRoutine : 更新 >
-    MonoBehaviourUpdateManager --|> MonoBehaviourSingleton
+    GameProcessManager -up-> Utility.SingletonMonoBehaviour
+    GameProcessManager --> IGameProcess
 
-    'MonoBehaviourクラス上でシングルトンを保証するクラス
-    abstract MonoBehaviourSingleton<<MonoBehaviour>>{
-        - T _instance
-        - bool _isInitialized
-        # virtual void Awake()
-        # vritual void OnDestroy()
+    'ゲーム進行管理を行う管理対象
+    interface IGameProcess{
+        void Initialize()
+        void FixedUpdate()
+        void Update()
+        void LateUpdate()
+        void Destroy()
     }
 
-    'GameObjectに貼り付けるコンポーネントの基礎クラス
-    class ContainerBase{
-        + bool IsSerializeFieldNullOrEmpty()     
+    'インゲームのプロセス
+    class MainProcess{
+        + override Intialize()
+        + override FixedUpdate()
+        + override Update()
+        + override LateUpdate()
+        + override Destroy()
     }
-    ContainerBase --|> MonoBehaviourSingleton
-
-    class CannonContainer{
-        + GameObject barrel
-        + GameObject lowerCarriage
-    }
-    CannonContainer --|> ContainerBase
-
-    'ルーチンの基礎クラス、
-    class MonoBehaviourRoutineBase<<Control>>{
-        - Control _control
-        + virtual void Awake()
-        + virtual void OnEnable()
-        + virtual void Start()
-        + virtual void FixedUpdate()
-        + virtual void Update() 
-        + virtual void LateUpdate()
-        + virtual void OnDisable()
-        + virtual void OnDestroy()
-
-
-    }
-    MonoBehaviourRoutineBase ..|> IMonoBehaviourRoutine : 実装 > 
-    MonoBehaviourRoutineBase --> MonoBehaviourUpdateManager : 生成時に登録 > 
-
-    'キャノンの関係のUIと手続きの紐づけ
-    class CannonPresenter{
-
-    }
-    CannonPresenter --|> MonoBehaviourRoutineBase
-    CannonPresenter --> CannonContainer
+    MainProcess .up.|> IGameProcess
 }
 
-CannonPresenter --> CannonModel
+namespace Command{
 
-CannonModel --> Cannon
+    'コマンド管理クラス
+    class CommandManager{
+        - List<> _commandList
+        - void ExecuteAllCommand()
+    }
+    CommandManager -up-> Utility.Singleton
+    CommandManager -down-|> ICommand
 
-'Q.GameObjectの生成はオブジェクト単位でまとめたほうがいいのではないか？
+    'コマンド管理単位
+    Interface ICommand{
+        void Execute()
+    }
+
+    'コマンド基礎クラス
+    class CommandBase{
+        + void Execute()
+    }
+    CommandBase .up.|> ICommand
+
+    class CannonCommand{
+    }
+    CannonCommand -up-|> CommandBase
+
+    class CreateCommand{
+    }
+    CreateCommand -up-|> CommandBase
+}
+
+namespace Resource{
+
+    'プロジェクト内のすべてのリソースを管理担当
+    class ResourceManager{
+        - List<> _objectList
+        + override Initialize()
+        + override Destroy()
+        + bool IsExistObject(int id)
+        + void DestroyResource(int id)
+        + GameObject GetObject(int id)
+    }
+    ResourceManager -up-|> Utility.Singleton
+    ResourceManager --> IObject
+
+    'プロジェクト内のリソース管理単位
+    'すべてのオブジェクトのIDを保証
+    Interface IObject{
+        - GetID()
+    }
+
+    'リソースの読み込み管理クラス
+    class FileLoader{
+        - private string _filePath
+        + GameObject void LoadAsyncPrefab(string )
+        + Texture void LoadAsyncTexture()
+    }
+    FileLoader -right-> ResourceManager : 追加 >
+    
+    enum ObjectType{
+        Bullet
+        Cannon
+        Enemy
+    }
+}
+
+namespace Cannon{
+        'キャノン
+    class Cannon{
+        - int _id
+        - int _hitPoint
+        - float energyPoint
+        - Transform _cannonTrsf
+        + void GetID()
+        + void CalcHitPoint(int damagePoint)
+        + bool IsEnergyPointMax()
+        + bool SetEnergyPointZero()
+    }
+    Cannon .up.|> Resource.IObject
+
+    class PanoramacRotator{
+    }
+    Cannon --> PanoramacRotator
+    Cannon --> TiltRotator
+
+    class TiltRotator{
+    }
+}
+
+namespace Bullet{
+
+    '弾の基礎クラス
+    class BulletBase{
+        - int _id
+        - Transform _bulletTrsf
+    }
+    BulletBase .up.|> Resource.IObject
+
+    '通常弾定義クラス
+    class NormalBullet{
+    }
+    NormalBullet -up-|> BulletBase
+
+    'マグナム弾定義クラス
+    class MagunumBullet{
+    }
+    MagunumBullet -up-|> BulletBase
+
+    '痺れ弾定義クラス
+    class NumbBullet{
+    }
+    NumbBullet -up-|> BulletBase
+
+    '毒弾定義クラス
+    class PoisonBullet{
+    }
+    PoisonBullet -up-|> BulletBase
+}
+
+namespace Enemy{
+
+    class EnemyBase{
+        - int _hitPoint
+        - int _offenssitivePower
+        - int _deffenssitivePower
+        + abstract CalcHitPoint(int damagePoint)
+    }
+    EnemyBase .up.|> Resource.IObject
+
+    'ToDo 敵の定義はUnityのアセットを見ながら決める 
+    class Slime{
+        + override CalcHitPoint(int damagePoint)
+    }
+    Slime -up-|> EnemyBase
+}
+
+
+namespace Utility{
+    '単一性を保証するためのクラス
+    class Singleton{
+        - T _instance
+        - bool isInitialized
+        - void CreateInstance()
+        # virtual Initialize()
+        # virtual Destroy()
+    }
+
+    '単一性を保証するためのクラス
+    class SingletonMonoBehaviour<<MonoBehaviour>>{
+        - T _instance
+        - bool isInitialized
+        # virtual Awake()
+        # virtual Destroy()
+    }
+}
+
+namespace Extension{
+    'コレクションにNullか要素数0の判定クラスがないので定義
+    class ICollectionExtension{
+        + bool IsNullOrEmpty()
+    }
+}
+
+
+
 @enduml
