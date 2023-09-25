@@ -15,6 +15,7 @@ namespace CannonShooting
         // プロパティ
         //=====================================================================================================================
         string ID { get; }
+        GameObject BulletInstantiatePosition { get; }
 
         //=====================================================================================================================
         // 関数
@@ -23,12 +24,12 @@ namespace CannonShooting
         /// <summary>
         /// 台座の回転
         /// </summary>
-        void RotateLowerCarriage();
+        void RotateLowerCarriage(Vector3 value);
 
         /// <summary>
         /// 砲台の回転
         /// </summary>
-        void RotateBarrel();
+        void RotateBarrel(Vector3 value);
 
     } // ICannon
 }// namespace CannonShooting

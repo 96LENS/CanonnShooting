@@ -9,7 +9,7 @@ namespace CannonShooting
     /// <summary>
     /// キャノンの基礎クラス
     /// </summary>
-    public class CannonBase : ICannon, ILifeSycleBase
+    public abstract class CannonBase : ICannon, ILifeSycleBase
     {
         //=====================================================================================================================
         // 内部クラス・列挙型定義
@@ -27,11 +27,15 @@ namespace CannonShooting
         protected Animator _animator = null;
         protected Barrel _barrel = null;
         protected LowerCarriage _lowerCarriage = null;
+        protected bool _isError = false;
+        protected GameObject _bulletInstantiatePosition = null;
 
         //=====================================================================================================================
         // プロパティ
         //=====================================================================================================================
         public string ID => _id;
+        public bool IsError => _isError;
+        public GameObject BulletInstantiatePosition => _bulletInstantiatePosition;
 
         //=====================================================================================================================
         // コンストラクタ
@@ -46,32 +50,42 @@ namespace CannonShooting
             {
                 Debug.LogError($"{_root.name}からAnimatorが見つかりませんでした");
             }
+
+            CannonContainer container = _root.GetComponent<CannonContainer>();
+            if(container == null)
+            {
+                Debug.LogError($"{_root.name}からCannonContainerが見つかりませんでした");
+            }
+
+            _barrel = new Barrel(container.Barrel.transform);
+            _lowerCarriage = new LowerCarriage(container.LowerCarriage.transform);
+            _bulletInstantiatePosition = container.BulletInstantiatePosition;
         }
 
         //=====================================================================================================================
         // ライフサイクル関数
         //=====================================================================================================================
-        public IEnumerator Initialize()
+        public virtual IEnumerator Initialize()
         {
             yield break;
         }
 
-        public void FixedUpdate()
+        public virtual void FixedUpdate()
         {
 
         }
 
-        public void Update()
+        public virtual void Update()
         {
 
         }
 
-        public void LateUpdate()
+        public virtual void LateUpdate()
         {
 
         }
 
-        public IEnumerator Termination()
+        public virtual IEnumerator Termination()
         {
             yield break;
         }
@@ -83,14 +97,14 @@ namespace CannonShooting
         //=====================================================================================================================
         // Public関数
         //=====================================================================================================================
-        public void RotateLowerCarriage()
+        public void RotateLowerCarriage(Vector3 value)
         {
-
+            _lowerCarriage.Rotate(value);
         }
 
-        public void RotateBarrel()
+        public void RotateBarrel(Vector3 value)
         {
-
+            _barrel.Rotate(value);
         }
 
     } // CannonBase
