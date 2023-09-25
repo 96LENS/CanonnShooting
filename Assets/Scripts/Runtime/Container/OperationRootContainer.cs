@@ -2,33 +2,59 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace DynamisFramework
+using DynamisFramework.Utility;
+
+namespace CannonShooting
 {
     /// <summary>
-    /// 
+    /// システム制御用オブジェクトのアクセス保証クラス
     /// </summary>
-    public class #SCRIPTNAME#
+    public class OperationRootContainer : DynamisFramework.Container.ContainerBase<OperationRootContainer>
     {
-      //=====================================================================================================================
+        //=====================================================================================================================
         // 内部クラス・列挙型定義
         //=====================================================================================================================
 
-       //=====================================================================================================================
+        //=====================================================================================================================
         // 定数
         //=====================================================================================================================
 
         //=====================================================================================================================
-        // 変数
+        // SerializeField変数
         //=====================================================================================================================
+        [SerializeField]
+        private GameObject _canvasBackground;
+        [SerializeField]
+        private GameObject _canvasMain;
+        [SerializeField]
+        private GameObject _canvasFront;
+        [SerializeField]
+        private GameObject _canvasForeground;
+
+        [SerializeField]
+        private GameObject _cameraRoot;
+        [SerializeField]
+        private GameObject _characterRoot;
+        [SerializeField]
+        private GameObject _pluginRoot;
 
         //=====================================================================================================================
         // プロパティ
         //=====================================================================================================================
 
+        public GameObject CanvasBackground => _canvasBackground;
+        public GameObject CanvasMain => _canvasMain;
+        public GameObject CanvasFront => _canvasFront;
+        public GameObject CanvasForeground => _canvasForeground;
+
+        public GameObject CameraRoot => _cameraRoot;
+        public GameObject CharacterRoot => _characterRoot;
+        public GameObject PluginRoot => _pluginRoot;
+
         //=====================================================================================================================
-        // コンストラクタ
+        // MonoBehaviour関数
         //=====================================================================================================================
-        public #SCRIPTNAME#()
+        protected override void Awake()
         {
 
         }
@@ -41,5 +67,5 @@ namespace DynamisFramework
         // Public関数
         //=====================================================================================================================
 
-    } // class #SCRIPTNAME#
-}// namespace DynamisFramework
+    } // class OperationRootContainer
+}// namespace CannonShooting

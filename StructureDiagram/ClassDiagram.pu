@@ -24,17 +24,40 @@ Domain層 (今回はロジックもここにまとめる)
 Package Domain{
     Package Cannnon{
 
-        '大砲の砲身 (垂直回転の制御)
-        '大砲の礎台(水平方向の回転を制御)
-        class Cannon{
-            - float _tiltRotateSpeed
-            - Transform _trsfBarrel
-            - float _PanoramacRotateSpeed
-            - Transform _trsfLowerCarriage
-            + void Initialize()
-            + void UpdateTiltRotation()
-            + void UpdatePanoramcRotation()
+        class CannonManager{
+            - List<CannonBase> _cannon
+            + bool AddCannon()
+            + bool RemoveCannon()
+            + ICannon GetCannon()
         }
+        CannonManager "1"-->"*" CannonBase : 生成時に登録 >
+
+        '機能の使用を提供するインターフェース
+        '機能を呼ぶ場合はこのインターフェースを通して呼ぶ
+        interface ICannon{   
+        }
+
+        class CannonBase{
+            - GameObject _root
+        }
+        CannonBase -down-|> ICannon
+
+        class Cannon {
+            - CannonBase _cannonBase
+            - void Movement()
+            - void Attack()
+        }
+
+        class LowerCarriage{
+            - Transform LowerCarriage
+            + void Rotate()
+        }
+
+        class Barrel{
+            - Transform Barrel
+            + void Rotate()
+        }
+
     }
 
     Package Bullet{
@@ -106,6 +129,17 @@ Package Domain{
 
     Package TimeLimit{
 
+    }
+
+    Package Utility{
+
+        Interface BaseSystem{
+            + void Initialize()
+            + void FixedUpdate()
+            + void Update()
+            + void LateUpdate()
+            + void Termination()
+        }
     }
 }
 
