@@ -5,9 +5,9 @@ using UnityEngine;
 namespace CannonShooting
 {
     /// <summary>
-    /// 
+    /// 弾の管理クラス
     /// </summary>
-    public class Cannon : CannonBase
+    public class BulletManager
     {
         //=====================================================================================================================
         // 内部クラス・列挙型定義
@@ -28,51 +28,9 @@ namespace CannonShooting
         //=====================================================================================================================
         // コンストラクタ
         //=====================================================================================================================
-        public Cannon(string id, GameObject root) : base (id, root)
-        {
-            _animator = root.GetComponent<Animator>();
-            if (_animator == null)
-            {
-                Debug.LogError($"{_root.name}からAnimatorが見つかりませんでした");
-            }
-
-            CannonContainer container = _root.GetComponent<CannonContainer>();
-            if (container == null)
-            {
-                Debug.LogError($"{_root.name}からCannonContainerが見つかりませんでした");
-            }
-
-            _barrel = new Barrel(container.Barrel.transform);
-            _lowerCarriage = new LowerCarriage(container.LowerCarriage.transform);
-            _bulletInstantiatePosition = container.BulletInstantiatePosition;
-        }
-
-        //=====================================================================================================================
-        // ライフサイクル関数
-        //=====================================================================================================================
-        public override IEnumerator Initialize()
-        {
-            yield break;
-        }
-
-        public override void FixedUpdate()
+        public BulletManager()
         {
 
-        }
-
-        public override void Update()
-        {
-
-        }
-
-        public override void LateUpdate()
-        {
-
-        }
-
-        public override IEnumerator Termination()
-        {
-            yield break;
         }
 
         //=====================================================================================================================
@@ -83,5 +41,5 @@ namespace CannonShooting
         // Public関数
         //=====================================================================================================================
 
-    } // class Cannon
+    } // class BulletManager
 }// namespace CannonShooting

@@ -18,224 +18,278 @@ title CannonShooting ClassMap
 'Animationファイルの管理・再生制御をどのように行うか
 'BarrelとLowerCarriageのドメインロジックがどのようにTransfromを知っているようにするか
 
-/'=====================================================
-Domain層 (今回はロジックもここにまとめる)
-======================================================='/
-Package Domain{
-    Package Cannnon{
+' キャノン
+Package Cannnon{
 
-        class CannonManager{
-            - List<CannonBase> _cannon
-            + bool AddCannon()
-            + bool RemoveCannon()
-            + ICannon GetCannon()
-        }
-        CannonManager "1"-->"*" CannonBase : 生成時に登録 >
+    class CannonManager{
+        - List<CannonBase> _cannon
+        + bool AddCannon()
+        + bool RemoveCannon()
+        + ICannon GetCannon()
+        --
+        + void FixedUpdate()
+        + void Update()
+        + void LateUpdate()
+    }
+    CannonManager "1"-->"*" CannonBase : 生成時に登録 >
 
-        '機能の使用を提供するインターフェース
-        '機能を呼ぶ場合はこのインターフェースを通して呼ぶ
-        interface ICannon{   
-        }
-
-        class CannonBase{
-            - GameObject _root
-        }
-        CannonBase -down-|> ICannon
-
-        class Cannon {
-            - CannonBase _cannonBase
-            - void Movement()
-            - void Attack()
-        }
-
-        class LowerCarriage{
-            - Transform LowerCarriage
-            + void Rotate()
-        }
-
-        class Barrel{
-            - Transform Barrel
-            + void Rotate()
-        }
-
+    '機能の使用を提供するインターフェース
+    '機能を呼ぶ場合はこのインターフェースを通して呼ぶ
+    interface ICannon{
     }
 
-    Package Bullet{
-        '弾の属性のEnumeration
-        enum BulletType<<short>>{
-            NORMAL
-            MAGNUM
-            POISON
-            PARALYSIS
-        }
+    class CannonBase{
+        - GameObject _root
+    }
+    CannonBase .up.|> ICannon
 
-        'Q. 残段数の管理
-        class RemaingBullet{
-            - int maxBullet
-            - int nowBullet
-            - void UpdateRemaingBullet()
-            + bool IsMaxBullet()
-        }
-        
+    class Cannon {
+        - CannonBase _cannonBase
+        - void Movement()
+        - void Attack()
+    }
+    Cannon -up-|> CannonBase
+    Cannon *--> Barrel
+    Cannon *--> LowerCarriage
 
-        class BulletCreator{
-            - float _interval
-            + bool IsCreateBullet()
-            - void CountInterval()
-            + void CreateBullet()
-        }
-
-        class Bullet <<MonoBehaviour>>{
-            - BulletType _bulletType
-        }
-        Bullet *-- BulletType
-
+    class LowerCarriage{
+        - Transform LowerCarriage
+        + void Rotate()
     }
 
-    Package Enemy{
-
-        class EnemyBase
-        {
-            - float _moveSpeed
-            - int _hitPoint
-            + void Movement()
-            + void Attack()
-        }
-
-        class Enemy{
-
-        }
-        Enemy --|> EnemyBase
+    class Barrel{
+        - Transform Barrel
+        + void Rotate()
     }
 
-    Package Damage{
-
-        Interface IDamage{
-            
-        }
-
-        class Damage
-
-    }
-    Enemy --> IDamage
-
-    Package HitPoint{
-
-    }
-
-    Package Score{
-
-    }
-
-    Package TimeLimit{
-
-    }
-
-    Package Utility{
-
-        Interface BaseSystem{
-            + void Initialize()
-            + void FixedUpdate()
-            + void Update()
-            + void LateUpdate()
-            + void Termination()
-        }
-    }
 }
 
-/'=====================================================
-Application層 (Domain層の組み立て) Unityの繋ぎこみも担当
-======================================================='/
-Package Application{
-
-    'キャノンのロジックモデル組み立て(ロジック自体はDomain層で記載する)
-    class CannonModel{
-
+'弾
+Package Bullet{
+    '弾の属性のEnumeration
+    enum eBulletType<<short>>{
+        NORMAL
+        MAGNUM
+        POISON
+        PARALYSIS
     }
+
+    ' 弾クラスの管理
+    class BulletManager{
+        - List<BulletBase> _bulletList
+        - int _bulletMax
+        + bool AddBullet()
+        + bool RemoveBullet()
+        + Bullet GetBullet()
+        --
+        + void FixedUpdate()
+        + void Update()
+        + void LateUpdate()
+    }
+    BulletManager -down-> BulletBase : 生成時に登録 >
+
+    '弾のアクセス保証クラス
+    interface IBullet{
+    }
+
+    '弾の基礎クラス
+    class BulletBase{
+        - string Id
+        - eBulletType _bulletType
+        - GameObject _root
+        - RigidBody _rigidBody
+    }
+    BulletBase .up.|> IBullet
+    BulletBase -left-> eBulletType
+
+    class BulletNormal{
+    }
+    BulletNormal -up-|> BulletBase
+
+    class BulletPoison{
+    }
+    BulletPoison -up-|> BulletBase
+
+    class BulletParalysis{
+    }
+    BulletParalysis -up-|> BulletBase
+
+    class BulletMagnum{
+    }
+    BulletMagnum -up-|> BulletBase
 }
 
-/'=====================================================
-Presentation層 UIなど主にユーザーが見えるところ (MonoBehaviour継承クラスはここだけ)
-======================================================='/
+'コマンド
+Package Command{
 
-Package Presentation{
+    'コマンドの管理クラス
+    class CommandManager{
+        - List<ICommand> _commandList
+        ---
+        + void ExecuteAllCommand()
+        ---
+        + void FixedUpdate()
+        + void Update()
+        + void LateUpdate()
+    }
+    CommandManager -down-> ICommand : 管理 >
 
-    'MonoBehaviourのライフサイクルを模したインターフェース
-    'Application層での繋ぎこみはこのインターフェースの実装クラスとして記載する
-    Interface IMonoBehaviourRoutine{
-        void Awake()
-        void OnEnable()
-        void Start()
-        void FixedUpdate()
-        void Update() 
-        void LateUpdate()
-        void OnDisable()
-        void OnDestroy()
+    ' Commandのアクセスインターフェース
+    interface ICommand{
+        void Execute()
     }
 
-    'IMonoBehaviourの処理をUnity上のメインルーチンとして呼び出すためのクラス
-    class MonoBehaviourUpdateManager{
-        - List<IMonoBehaviourRoutine> _updateList
-        - void Awake()
-        - void OnEnable()
-        - void Start()
-        - void FixedUpdate()
-        - void Update()
-        - void LateUpdate()
-        - void OnDisable()
-        - void OnDestroy()
+    ' コマンドの基礎クラス
+    class CommandBase{
+        + void Execute()
     }
-    MonoBehaviourUpdateManager "1"--> "0..*" IMonoBehaviourRoutine : 更新 >
-    MonoBehaviourUpdateManager --|> MonoBehaviourSingleton
+    CommandBase .up.|> ICommand
 
-    'MonoBehaviourクラス上でシングルトンを保証するクラス
-    abstract MonoBehaviourSingleton<<MonoBehaviour>>{
-        - T _instance
-        - bool _isInitialized
-        # virtual void Awake()
-        # vritual void OnDestroy()
+    'キャノン関連のコマンド
+    class CannonCommand{
+        + class RotateBarrel
+        + class RotateLowerCarriage
+    }
+    CannonCommand -up-|> CommandBase
+    
+    '弾関連のコマンド
+    class BulletCommand{
+        + class Hit
+    }
+    BulletCommand -up-|> CommandBase
+
+    '生成関連のコマンド
+    class CreateCommand{
+        + class CreateCannon
+        + class CreateBullet
+        + class CreateEnemy
+    }
+    CreateCommand -up-|> CommandBase
+
+    '削除関連のコマンド
+    class DestroyCommand{
+
+    }
+    DestroyCommand -up-|> CommandBase
+}
+
+' 敵
+Package Enemy{
+
+    '敵の管理クラス
+    class EnemyManager{
+        - List<EnemyBase> _enemyList
+        + bool AddEnemy(EnemyBase enemy)
+        + bool RemoveEnemy(string id)
+        + IEnemy GetEnemy(string id)
+        --
+        + void FixedUpdate()
+        + void Update()
+        + void LateUpdate()
+    }
+    EnemyManager -down-> EnemyBase : 生成時に登録 >
+
+    enum eEnemyType{
+
     }
 
-    'GameObjectに貼り付けるコンポーネントの基礎クラス
-    class ContainerBase{
-        + bool IsSerializeFieldNullOrEmpty()     
+    '敵のアクセス保証インターフェース
+    interface IEnemy{
+        + string ID
+        + eEnemyType EnemyType
+        + GameObject Root
+        + int HitPoint
     }
-    ContainerBase --|> MonoBehaviourSingleton
 
+    ' 敵の基礎クラス
+    class EnemyBase{
+    }
+    EnemyBase .up.|> IEnemy
+    EnemyBase -left-> eEnemyType
+
+    '各種敵定義クラス
+    class Enemy{
+
+    }
+    Enemy -up-|> EnemyBase
+}
+
+' コンテナ
+Package Container{
+
+    'コンテナの基礎クラス
+    abstract ContainerBase{
+    }
+
+    'キャノンのGameObjectアクセス保証コンテナ
     class CannonContainer{
-        + GameObject barrel
-        + GameObject lowerCarriage
     }
-    CannonContainer --|> ContainerBase
+    CannonContainer -up-|> ContainerBase
 
-    'ルーチンの基礎クラス、
-    class MonoBehaviourRoutineBase<<Control>>{
-        - Control _control
-        + virtual void Awake()
-        + virtual void OnEnable()
-        + virtual void Start()
-        + virtual void FixedUpdate()
-        + virtual void Update() 
-        + virtual void LateUpdate()
-        + virtual void OnDisable()
-        + virtual void OnDestroy()
-
-
+    '弾のGameObjectアクセス保証コンテナ
+    class BulletContainer{
     }
-    MonoBehaviourRoutineBase ..|> IMonoBehaviourRoutine : 実装 > 
-    MonoBehaviourRoutineBase --> MonoBehaviourUpdateManager : 生成時に登録 > 
-
-    'キャノンの関係のUIと手続きの紐づけ
-    class CannonPresenter{
-
-    }
-    CannonPresenter --|> MonoBehaviourRoutineBase
-    CannonPresenter --> CannonContainer
+    BulletContainer -up-|> ContainerBase
 }
 
-CannonPresenter --> CannonModel
+Package Manager{
 
-CannonModel --> Cannon
+    '生成したGameObjectの管理クラス
+    class ModelManager{
+        - Dictionary<string, GameObject> _modelList
+        + void Instantiate()
+        + void Destroy()
+    }
 
-'Q.GameObjectの生成はオブジェクト単位でまとめたほうがいいのではないか？
+    ' Prefabの管理クラス
+    class PrefabManager{
+        - List<PrefabWorker> _loadPrefabList
+        + void LoadPrefab()
+        + GameObject Instantiate()
+    }
+    PrefabManager +-down- PrefabWorker : 管理
+
+    ' 管理されるPrefab定義クラス
+    class PrefabWorker{
+        + GameObject Prefab
+        + int ReferenceCount
+        + void AddReferenceCount()
+        + void SubReferenceCount()
+    }
+}
+
+Package Damage{
+
+    ' ダメージ定義クラスへのアクセス権限
+    Interface IDamage{
+
+    }
+
+    class Damage{
+        
+    }
+}
+
+Package HitPoint{
+
+}
+
+Package Score{
+
+}
+
+Package TimeLimit{
+
+}
+
+Package Utility{
+
+    Interface BaseSystem{
+        IEnumerator Initialize()
+        void FixedUpdate()
+        void Update()
+        void LateUpdate()
+        IEnumerator Termination()
+    }
+}
 @enduml

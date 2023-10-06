@@ -1,13 +1,15 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DynamisFramework.Utility;
 
 namespace CannonShooting
 {
     /// <summary>
     /// 
     /// </summary>
-    public class Cannon : CannonBase
+    public class BulletBase : IBullet, ILifeSycleBase
     {
         //=====================================================================================================================
         // 内部クラス・列挙型定義
@@ -20,57 +22,61 @@ namespace CannonShooting
         //=====================================================================================================================
         // 変数
         //=====================================================================================================================
+        protected string _id = string.Empty;
+        protected GameObject _root = null;
+        protected eBulletType _bulletType = eBulletType.NONE;
+        protected Rigidbody _rigidbody = null;
+        protected Collider _collider = null;
+
+        protected BulletContainer _bulletContainer = null;
 
         //=====================================================================================================================
         // プロパティ
         //=====================================================================================================================
+        public string ID => _id;
+        public GameObject Root => _root;
+        public eBulletType BulletType => _bulletType;
+        public Rigidbody RigidBody => _rigidbody;
+        public Collider Collider => _collider;
+
+        public Action<Collision> CollisionEnterAction { get; set; }
+        public Action<Collision> CollisionStayAction { get; set; }
+        public Action<Collision> CollisionExitAction { get; set; }
 
         //=====================================================================================================================
         // コンストラクタ
         //=====================================================================================================================
-        public Cannon(string id, GameObject root) : base (id, root)
+        public BulletBase(GameObject root, string id, eBulletType bulletType)
         {
-            _animator = root.GetComponent<Animator>();
-            if (_animator == null)
-            {
-                Debug.LogError($"{_root.name}からAnimatorが見つかりませんでした");
-            }
-
-            CannonContainer container = _root.GetComponent<CannonContainer>();
-            if (container == null)
-            {
-                Debug.LogError($"{_root.name}からCannonContainerが見つかりませんでした");
-            }
-
-            _barrel = new Barrel(container.Barrel.transform);
-            _lowerCarriage = new LowerCarriage(container.LowerCarriage.transform);
-            _bulletInstantiatePosition = container.BulletInstantiatePosition;
+            _root = root;
+            _id = id;
+            _bulletType = bulletType;
         }
 
         //=====================================================================================================================
         // ライフサイクル関数
         //=====================================================================================================================
-        public override IEnumerator Initialize()
+        public virtual IEnumerator Initialize()
         {
             yield break;
         }
 
-        public override void FixedUpdate()
+        public virtual void FixedUpdate()
         {
 
         }
 
-        public override void Update()
+        public virtual void Update()
         {
 
         }
 
-        public override void LateUpdate()
+        public virtual void LateUpdate()
         {
 
         }
 
-        public override IEnumerator Termination()
+        public virtual IEnumerator Termination()
         {
             yield break;
         }
@@ -83,5 +89,5 @@ namespace CannonShooting
         // Public関数
         //=====================================================================================================================
 
-    } // class Cannon
+    } // class BulletBase
 }// namespace CannonShooting

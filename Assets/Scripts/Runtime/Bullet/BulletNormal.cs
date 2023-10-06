@@ -7,7 +7,7 @@ namespace CannonShooting
     /// <summary>
     /// 
     /// </summary>
-    public class Cannon : CannonBase
+    public class BulletNormal : BulletBase
     {
         //=====================================================================================================================
         // 内部クラス・列挙型定義
@@ -28,23 +28,26 @@ namespace CannonShooting
         //=====================================================================================================================
         // コンストラクタ
         //=====================================================================================================================
-        public Cannon(string id, GameObject root) : base (id, root)
+        public BulletNormal(GameObject root, string id) : base(root, id, eBulletType.NORMAL)
         {
-            _animator = root.GetComponent<Animator>();
-            if (_animator == null)
-            {
-                Debug.LogError($"{_root.name}からAnimatorが見つかりませんでした");
-            }
+            _rigidbody = root.GetComponent<Rigidbody>();
 
-            CannonContainer container = _root.GetComponent<CannonContainer>();
-            if (container == null)
-            {
-                Debug.LogError($"{_root.name}からCannonContainerが見つかりませんでした");
-            }
+            _collider = root.GetComponent<Collider>();
 
-            _barrel = new Barrel(container.Barrel.transform);
-            _lowerCarriage = new LowerCarriage(container.LowerCarriage.transform);
-            _bulletInstantiatePosition = container.BulletInstantiatePosition;
+            _bulletContainer = root.GetComponent<BulletContainer>();
+
+            _bulletContainer.OnCollisionEnterCallback = (collision) => 
+            {
+                CollisionEnterAction?.Invoke(collision);
+            };
+            _bulletContainer.OnCollisionStayCallback = (collision) => 
+            {
+                CollisionStayAction?.Invoke(collision);
+            };
+            _bulletContainer.OnCollisionExitCallback = (collision) =>
+            {
+                CollisionExitAction?.Invoke(collision);
+            };
         }
 
         //=====================================================================================================================
@@ -83,5 +86,5 @@ namespace CannonShooting
         // Public関数
         //=====================================================================================================================
 
-    } // class Cannon
+    } // class BulletNormal
 }// namespace CannonShooting
